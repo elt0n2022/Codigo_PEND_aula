@@ -13,6 +13,7 @@ try {
     exit;
 }
 
+// Consultar capacidade total do evento
 $stmtEvento = $pdo->query("SELECT capacidade_maxima FROM eventos LIMIT 1");
 $evento = $stmtEvento->fetch(PDO::FETCH_ASSOC);
 $capacidade_maxima = $evento ? (int)$evento['capacidade_maxima'] : 2;
@@ -29,6 +30,7 @@ $publico_atual = max(0, $total_entradas - $total_saidas);
 $mensagem_resposta = "";
 $sucesso_registro = true;
 
+// Processar leitura de TAG (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tag_id = $_POST['tag_id'] ?? '';
     $tipo_manual = $_POST['tipo'] ?? '';
@@ -49,13 +51,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tipo = $tipo_manual;
         }
 
+        // BLOQUEIO DE SEGURANÇA: Impede novas ENTRADAS se a capacidade foi atingida
         if ($tipo === 'entrada' && $publico_atual >= $capacidade_maxima) {
             $sucesso_registro = false;
             $mensagem_resposta = "ENTRADA RECUSADA: Capacidade máxima atingida!";
         } else {
+            // Permite registrar no banco de dados (Saídas ou Entradas dentro do limite)
             $stmt = $pdo->prepare("INSERT INTO leituras_tag (tag_id, tipo_movimento) VALUES (?, ?)");
             $stmt->execute([$tag_id, $tipo]);
 
+            // Atualiza os contadores para retornar o estado mais recente
             if ($tipo === 'entrada') {
                 $total_entradas++;
                 $publico_atual++;
