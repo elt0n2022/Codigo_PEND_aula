@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento de Lotação em Tempo Real</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background-color: #f4f6f9; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        h1 { margin-bottom: 20px; color: #333; text-align: center; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1000px; width: 100%; justify-content: center; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; flex: 1; min-width: 200px; }
+        .card h3 { font-size: 14px; color: #666; margin-bottom: 10px; }
+        .card p { font-size: 28px; font-weight: bold; color: #222; }
+        .status-box { width: 100%; max-width: 1000px; padding: 15px; text-align: center; border-radius: 8px; font-weight: bold; margin-top: 15px; }
+        .normal { background-color: #d4edda; color: #155724; }
+        .alerta { background-color: #fff3cd; color: #856404; }
+        .critico { background-color: #f8d7da; color: #721c24; }
+        .chart-container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 100%; max-width: 600px; margin-top: 20px; }
+        
+        .nfc-box { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 100%; max-width: 1000px; margin-top: 20px; text-align: center; }
+        .btn-nfc { background-color: #007bff; color: white; padding: 15px 30px; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; max-width: 350px; }
+        #nfc-status { margin-top: 10px; font-size: 14px; color: #555; }
+
+        /* Estilo da Caixa de Diálogo Personalizada */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 999; }
+        .modal-card { background: #fff; padding: 30px; border-radius: 12px; text-align: center; max-width: 320px; width: 80%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .modal-card h2 { font-size: 20px; margin-bottom: 10px; color: #007bff; }
+        .modal-card p { font-size: 16px; color: #333; margin-bottom: 15px; }
+        .modal-btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>Monitoramento de Lotação do Evento</h1>
+
+    <div class="container">
+        <div class="card">
+            <h3>PÚBLICO ATUAL</h3>
+            <p id="publico-atual">0</p>
+        </div>
+        <div class="card">
+            <h3>CAPACIDADE MÁXIMA</h3>
+            <p id="capacidade-maxima">0</p>
+        </div>
+        <div class="card">
+            <h3>TOTAL ENTRADAS</h3>
+            <p id="total-entradas">0</p>
+        </div>
+        <div class="card">
+            <h3>TOTAL SAÍDAS</h3>
+            <p id="total-saidas">0</p>
+        </div>
+    </div>
+
+    <div id="status-alerta" class="status-box normal">Capacidade Normal</div>
+
+    <div class="chart-container">
+        <canvas id="graficoLotacao"></canvas>
+    </div>
+
+    <div class="nfc-box">
+        <h3>Leitor de TAG NFC</h3>
+        <br>
+        <button class="btn-nfc" onclick="iniciarLeituraNFC()">📲 Ativar / Escanear TAG NFC</button>
+        <p id="nfc-status">Clique no botão acima para ativar a antena.</p>
+    </div>
+
+    <!-- Caixa de Diálogo Customizada -->
+    <div id="modal-dialogo" class="modal-overlay">
+        <div class="modal-card">
+            <h2>TAG Lido!</h2>
+            <p id="modal-mensagem">Escaneado com sucesso.</p>
+            <button class="modal-btn" onclick="fecharDialogo()">OK</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
